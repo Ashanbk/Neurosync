@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroLearn Adaptive Platform 🧠</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3f51b5; /* Indigo */
+            --secondary-color: #f44336; /* Red for warnings/focus */
+            --accent-color: #00bcd4; /* Cyan for actions */
+            --background-light: #f8f9fa;
+        }
+        body {
+            background-color: var(--background-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .app-container {
+            max-width: 1100px;
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .st-header {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--accent-color);
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        /* Custom Adaptive Styles */
+        .high-contrast-output {
+            background-color: #1a1a1a; 
+            color: #ffffff;           
+            padding: 15px !important; 
+            border-radius: 8px;
+            border: 2px solid #555;
+        }
+        .low-saturation-output {
+            background-color: #e8f5e9; 
+            color: #333333;
+            padding: 15px !important; 
+            border-radius: 8px;
+            border: 1px solid #c8e6c9;
+        }
+        .btn-action {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+            font-weight: 600;
+        }
+        .btn-focus {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            color: white;
+            font-weight: 700;
+        }
+        .timer-display-box {
+            background-color: #ffffff;
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .timer-value {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--secondary-color);
+            line-height: 1;
+        }
+        #live-camera-feed {
+            transform: scaleX(-1); /* Mirror effect for natural video feed */
+        }
+
+        /* Ensure camera view scales nicely on small screens */
+        @media (max-width: 768px) {
+            #live-camera-feed {
+                max-height: 300px; /* Constrain height on mobile */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container app-container">
+        <h1 class="text-center text-primary">🧠 NeuroLearn Adaptive Platform</h1>
+        <p class="text-center text-muted mb-5">A multi-modal, emotion-aware assistant for cognitive accessibility.</p>
+
+        <h2 class="st-header">1) Cognitive Profile Setup</h2>
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div id="profile-summary" class="alert alert-info">Loading profile...</div>
+                
+                <div class="accordion" id="profile-accordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                Edit/Update Profile Settings
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse">
+                            <div class="accordion-body">
+                                <form id="profile-form">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">Your Name</label>
+                                            <input type="text" id="name" class="form-control form-control-sm">
+                                            <label class="form-label mt-2 fw-bold">Typical Focus Span</label>
+                                            <select id="focus_span" class="form-select form-select-sm">
+                                                <option>short (10-20 min)</option><option>medium (20-35 min)</option><option>long (35+ min)</option>
+                                            </select>
+                                            <label class="form-label mt-2 fw-bold">Task Presentation Preference</label>
+                                            <select id="task_preference" class="form-select form-select-sm">
+                                                <option>structured (step-by-step)</option><option>open-ended (big picture)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">Preferred Learning Modality</label>
+                                            <select id="learning_style" class="form-select form-select-sm">
+                                                <option>visual</option><option>auditory</option><option>textual</option><option>mixed</option>
+                                            </select>
+                                            <label class="form-label mt-2 fw-bold">Visual Comfort Style</label>
+                                            <select id="visual_preference" class="form-select form-select-sm">
+                                                <option>standard</option><option>high_contrast</option><option>low_saturation</option>
+                                            </select>
+                                            <label class="form-label mt-2 fw-bold">Sensitivity to Overload</label>
+                                            <select id="sensitivity" class="form-select form-select-sm">
+                                                <option>low</option><option>medium</option><option>high</option>
+                                            </select>
+                                            <label class="form-label mt-2 fw-bold">Background Noise Need</label>
+                                            <select id="background_noise" class="form-select form-select-sm">
+                                                <option>none_required</option><option>white_noise</option><option>lofi_music</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary mt-4 w-100">Save Profile</button>
+                                    <div id="profile-save-status" class="mt-2"></div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="st-header mt-5">2) Adaptive Text Processing & Summarization</h2>
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div id="nlp-warning"></div>
+                
+                <div class="mb-3">
+                    <label for="text-input" class="form-label fw-bold">Text Input:</label>
+                    <textarea id="text-input" class="form-control" rows="5" placeholder="Paste complex text here (≥ 2 sentences), OR upload a .txt file below:"></textarea>
+                </div>
+
+                <div class="mb-3 border p-3 rounded bg-light">
+                    <label for="visual-file-input" class="form-label fw-bold text-success">
+                        Upload File for Visual Summary Context (All types accepted)
+                    </label>
+                    <input type="file" id="visual-file-input" class="form-control" 
+                           accept="image/*,video/*,application/pdf,.txt,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation">
+                    <small class="text-muted">Upload text, PDF, Word, PPT, image, or video for analysis.</small>
+                </div>
+
+                <button id="simplify-button" class="btn btn-action mt-3 w-100">🔍 Analyze & Adapt Text Output</button>
+                
+                <div id="text-output" class="mt-4">
+                    <h4 class="text-secondary">Adapted Output (Style and Structure Applied)</h4>
+                    <div id="adapted-text-content" class="p-3 border rounded">
+                        </div>
+                    <div id="visual-summary-placeholder" class="mt-3 p-3 bg-light rounded border border-success" style="display:none;">
+                        <h5>🎬 Generated Visual Summary Plan</h5>
+                        <p id="visual-summary-content"></p>
+                        <small>In a full app, this plan (based on text & uploaded file context) would generate a custom video/mind-map.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h2 class="st-header mt-5">3) Emotion-Aware Focus Mode (Live)</h2>
+        <div class="row g-4"> 
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-warning text-dark">
+                        Live Emotion Analysis
+                    </div>
+                    <div class="card-body text-center">
+                        <video id="live-camera-feed" width="100%" height="auto" autoplay muted style="border: 2px solid #aaa; border-radius: 8px;"></video>
+                        <canvas id="emotion-canvas" style="display:none;"></canvas>
+                        
+                        <div id="fer-warning"></div>
+                        <button id="start-camera-button" class="btn btn-success w-100 mt-3">▶ Start Camera & Analysis</button>
+                        <div id="emotion-status" class="mt-2 fw-bold text-danger">Status: Idle</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-danger">
+                        <i class="bi bi-clock"></i> Adaptive Focus Timer
+                    </div>
+                    <div class="card-body">
+                        <div id="focus-plan-summary" class="alert alert-light border border-primary">Loading focus plan...</div>
+                        
+                        <div class="d-grid d-md-flex gap-3 align-items-center justify-content-between mb-3">
+                            <button id="start-timer-button" class="btn btn-focus flex-grow-1">▶ Start Adaptive Timer Now</button>
+                             <button id="reset-timer-button" class="btn btn-outline-secondary" style="display:none;">Reset</button>
+                        </div>
+
+                        <div id="timer-display" class="timer-display-box">
+                            <span class="timer-value">00:00</span>
+                            <p class="text-muted mb-0">Ready to begin</p>
+                        </div>
+                        <div id="timer-status-message" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script type="module">
+        // Import JS modules (Ensure all three files are updated and in the same directory!)
+        import { loadProfile, saveProfile, getProfileSummary } from './profile_manager.js';
+        import { 
+            simplifyText, renderOutput, playTts, detectLiveEmotion, 
+            adjustFocusDuration, analyzeVisualFile, HAVE_TRANSFORMERS, HAVE_FER
+        } from './adaptive_core.js';
+        
+        // --- State Initialization ---
+        let profile = loadProfile();
+        let dominantEmotion = "neutral";
+        let lastVisualFile = null;
+        let timerInterval = null; 
+        let emotionCheckInterval = null; 
+        
+        // --- DOM Elements ---
+        const profileForm = document.getElementById('profile-form');
+        const profileSummaryEl = document.getElementById('profile-summary');
+        const profileStatusEl = document.getElementById('profile-save-status');
+        const textInputEl = document.getElementById('text-input');
+        const simplifyButton = document.getElementById('simplify-button');
+        const adaptedTextContentEl = document.getElementById('adapted-text-content');
+        const nlpWarningEl = document.getElementById('nlp-warning');
+        const ferWarningEl = document.getElementById('fer-warning');
+        const visualFileInput = document.getElementById('visual-file-input');
+        const visualSummaryPlaceholder = document.getElementById('visual-summary-placeholder');
+        const visualSummaryContentEl = document.getElementById('visual-summary-content');
+        const liveCameraFeed = document.getElementById('live-camera-feed');
+        const startCameraButton = document.getElementById('start-camera-button');
+        const emotionStatusEl = document.getElementById('emotion-status');
+        const focusPlanSummaryEl = document.getElementById('focus-plan-summary');
+        const startTimerButton = document.getElementById('start-timer-button');
+        const resetTimerButton = document.getElementById('reset-timer-button');
+        const timerDisplayEl = document.getElementById('timer-display');
+        const timerStatusMessageEl = document.getElementById('timer-status-message');
+
+
+        // --- Core Functions ---
+
+        function populateProfileForm() {
+            document.getElementById('name').value = profile.name;
+            document.getElementById('focus_span').value = profile.focus_span;
+            document.getElementById('task_preference').value = profile.task_preference;
+            document.getElementById('learning_style').value = profile.learning_style;
+            document.getElementById('visual_preference').value = profile.visual_preference;
+            document.getElementById('sensitivity').value = profile.sensitivity;
+            document.getElementById('background_noise').value = profile.background_noise;
+        }
+
+        function updateUI() {
+            // 1. Profile Summary
+            profileSummaryEl.innerHTML = getProfileSummary(profile);
+            
+            // 2. Warnings
+            if (!HAVE_TRANSFORMERS) {
+                 nlpWarningEl.innerHTML = `<div class="alert alert-warning p-2">⚠️ Summarization API is NOT configured. Using simple sentence-based fallback.</div>`;
+            } else {
+                 nlpWarningEl.innerHTML = '';
+            }
+
+            if (!HAVE_FER) {
+                ferWarningEl.innerHTML = `<div class="alert alert-warning p-2">Emotion detection is currently simulated.</div>`;
+            } else {
+                ferWarningEl.innerHTML = `<div class="alert alert-info p-2">ML Models are loaded/loading. Detection will be attempted live.</div>`;
+            }
+
+            // 3. Focus Plan
+            const { focusMinutes, message } = adjustFocusDuration(profile, dominantEmotion);
+            
+            let noiseSuggestion = '';
+            if (profile.background_noise !== 'none_required') {
+                noiseSuggestion = `<p class="mb-0">🎧 <b>Noise Suggestion</b>: Your profile recommends using <i>${profile.background_noise.replace('_', ' ').charAt(0).toUpperCase() + profile.background_noise.replace('_', ' ').slice(1)}</i> for optimal focus.</p>`;
+            }
+
+            focusPlanSummaryEl.innerHTML = `
+                <p class="fw-bold mb-1">Recommended Adaptive Focus Duration: <span class="text-danger fs-5">${focusMinutes} minutes</span></p>
+                <p class="fst-italic text-secondary">${message.replace(/\n\n/g, '<br><br>')}</p>
+                ${noiseSuggestion}
+            `;
+        }
+        
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            timerDisplayEl.innerHTML = '<span class="timer-value">00:00</span><p class="text-muted mb-0">Ready to begin</p>';
+            timerStatusMessageEl.innerHTML = '';
+            startTimerButton.disabled = false;
+            resetTimerButton.style.display = 'none';
+        }
+
+
+        // --- Camera Logic ---
+        startCameraButton.addEventListener('click', async () => {
+            if (liveCameraFeed.srcObject) {
+                // Stop Camera
+                liveCameraFeed.srcObject.getTracks().forEach(track => track.stop());
+                liveCameraFeed.srcObject = null;
+                clearInterval(emotionCheckInterval);
+                startCameraButton.textContent = '⏹ Stop Camera';
+                emotionStatusEl.textContent = 'Status: Idle';
+                liveCameraFeed.style.border = '2px solid #aaa';
+                dominantEmotion = "neutral";
+                updateUI();
+                return;
+            }
+
+            try {
+                // Start Camera
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                liveCameraFeed.srcObject = stream;
+                liveCameraFeed.play();
+                startCameraButton.textContent = '⏹ Stop Camera';
+                liveCameraFeed.style.border = '2px solid var(--primary-color)';
+
+                // Start Live Emotion Loop (Uses simple simulation in adaptive_core.js)
+                emotionCheckInterval = setInterval(async () => {
+                    const result = await detectLiveEmotion(liveCameraFeed);
+                    
+                    if (result === 'analyzing...') {
+                        emotionStatusEl.textContent = 'Status: Loading...';
+                        return;
+                    }
+                    
+                    if (result === 'no face') {
+                        emotionStatusEl.textContent = 'Status: Face not detected';
+                        dominantEmotion = 'neutral';
+                    } else {
+                        dominantEmotion = result;
+                        emotionStatusEl.innerHTML = `Emotion: <b>${dominantEmotion.toUpperCase()}</b>`;
+                    }
+                    updateUI();
+                    
+                }, 1000); // Check every 1 second
+
+            } catch (err) {
+                console.error('Camera access error:', err);
+                emotionStatusEl.innerHTML = `<div class="alert alert-danger p-2">Status: Camera Blocked. Error: ${err.name}</div>`;
+                startCameraButton.textContent = '▶ Start Camera & Analysis (Failed)';
+            }
+        });
+
+        // --- Event Listeners ---
+
+        profileForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newProfile = {
+                name: document.getElementById('name').value || "User",
+                focus_span: document.getElementById('focus_span').value,
+                task_preference: document.getElementById('task_preference').value,
+                learning_style: document.getElementById('learning_style').value,
+                visual_preference: document.getElementById('visual_preference').value,
+                sensitivity: document.getElementById('sensitivity').value,
+                background_noise: document.getElementById('background_noise').value,
+            };
+            saveProfile(newProfile);
+            profile = newProfile;
+            profileStatusEl.innerHTML = '<div class="alert alert-success p-2">Profile saved ✅</div>';
+            setTimeout(() => profileStatusEl.innerHTML = '', 3000);
+            updateUI();
+        });
+
+        // --- File Reader Logic ---
+        visualFileInput.addEventListener('change', (e) => {
+            lastVisualFile = e.target.files[0];
+            if (!lastVisualFile) return;
+
+            // 1. Handle Text Files by reading content into the main input area
+            if (lastVisualFile.type.startsWith('text/') || lastVisualFile.name.endsWith('.txt')) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    textInputEl.value = event.target.result; 
+                    alert(`Text content from "${lastVisualFile.name}" loaded into the Text Input area for summarization. Click 'Analyze & Adapt' to proceed.`);
+                };
+                reader.onerror = function() {
+                    alert("Error reading text file.");
+                };
+                reader.readAsText(lastVisualFile);
+                
+            } else if (lastVisualFile.type === 'application/pdf' || lastVisualFile.type.includes('word') || lastVisualFile.type.includes('powerpoint')) {
+                 // 2. Handle Complex Files (Accept for Visual Plan Mock)
+                 alert(`The file "${lastVisualFile.name}" has been accepted for Visual Summary Analysis, but its content cannot be directly read into the text area in this front-end demo.`);
+            } else {
+                 // 3. Handle Images/Videos
+                 console.log(`File chosen for visual analysis: ${lastVisualFile.name}`);
+            }
+        });
+
+        simplifyButton.addEventListener('click', async () => {
+            const text = textInputEl.value.trim();
+            if (!text) {
+                alert("Please paste some text to simplify.");
+                return;
+            }
+
+            simplifyButton.disabled = true;
+            adaptedTextContentEl.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+            visualSummaryPlaceholder.style.display = 'none';
+            
+            // 1. Summarize Text
+            const adaptedText = await simplifyText(text, profile);
+            const renderedHtml = renderOutput(adaptedText, profile);
+            
+            // 2. Generate Visual Summary Plan
+            const visualAnalysis = analyzeVisualFile(lastVisualFile);
+            
+            if (lastVisualFile) {
+                visualSummaryPlaceholder.style.display = 'block';
+                visualSummaryContentEl.innerHTML = `<p class="fw-bold">Source File: ${lastVisualFile.name}</p><p>${visualAnalysis}</p>`;
+            } else {
+                visualSummaryPlaceholder.style.display = 'none';
+            }
+            
+            // 3. Render Adapted Text Output
+            adaptedTextContentEl.className = 'p-3 border rounded';
+            
+            if (profile.visual_preference === 'high_contrast') {
+                 adaptedTextContentEl.classList.add('high-contrast-output');
+            } else if (profile.visual_preference === 'low_saturation') {
+                 adaptedTextContentEl.classList.add('low-saturation-output');
+            } else {
+                 adaptedTextContentEl.classList.add('bg-white');
+            }
+            
+            adaptedTextContentEl.innerHTML = renderedHtml;
+            simplifyButton.disabled = false;
+            
+            const ttsButton = document.getElementById('tts-button');
+            if (ttsButton) {
+                ttsButton.addEventListener('click', () => {
+                    playTts(adaptedTextContentEl.textContent);
+                });
+            }
+        });
+
+        startTimerButton.addEventListener('click', () => {
+            if (timerInterval) return;
+
+            const { focusMinutes, isMicroBreakMode } = adjustFocusDuration(profile, dominantEmotion);
+
+            startTimerButton.disabled = true;
+            resetTimerButton.style.display = 'block';
+            timerStatusMessageEl.innerHTML = '';
+            
+            const updateTimerDisplay = (seconds, phaseMessage) => {
+                const minutes = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                const timeString = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                timerDisplayEl.innerHTML = `<span class="timer-value">${timeString}</span><p class="text-muted mb-0">${phaseMessage}</p>`;
+            };
+
+            const runTimerPhase = (totalSeconds, phaseMessage, onComplete) => {
+                let secondsLeft = totalSeconds;
+                
+                timerInterval = setInterval(() => {
+                    if (secondsLeft <= 0) {
+                        clearInterval(timerInterval);
+                        onComplete();
+                        return;
+                    }
+                    updateTimerDisplay(secondsLeft, phaseMessage);
+                    secondsLeft--;
+                }, 1000);
+            };
+            
+            const startFocusSession = () => {
+                const workMinutes = isMicroBreakMode ? Math.max(5, focusMinutes - 2) : focusMinutes;
+                
+                // Phase 1: Work Block
+                runTimerPhase(workMinutes * 60, `🧠 Focus Time (Work Block)`, () => {
+                    if (isMicroBreakMode) {
+                        // Phase 2: Micro-Break
+                        timerDisplayEl.innerHTML = '<h2 class="text-warning">⚠️ Micro-Break (30s)!</h2><p>Look away for 30 seconds.</p>';
+                        timerStatusMessageEl.innerHTML = '<div class="alert alert-warning">Taking a mandatory 30-second break...</div>';
+                        
+                        setTimeout(() => {
+                            // Phase 3: Final Wrap-up
+                            runTimerPhase(2 * 60, "⏰ Final Wrap-up", () => {
+                                timerStatusMessageEl.innerHTML = `<div class="alert alert-success">🥳 Session Ended! Total ${focusMinutes} minutes. 🌿</div>`;
+                                resetTimer();
+                            });
+                        }, 30000); // 30 seconds wait
+                        
+                    } else {
+                        // Standard Session End
+                        timerStatusMessageEl.innerHTML = `<div class="alert alert-success">🥳 Session Ended! Total ${focusMinutes} minutes. 🌿</div>`;
+                        resetTimer();
+                    }
+                });
+            };
+
+            startFocusSession();
+        });
+        
+        resetTimerButton.addEventListener('click', resetTimer);
+
+        // --- Initial Load & Model Loading ---
+        
+        // 1. Initial UI setup
+        populateProfileForm();
+        updateUI(); 
+
+    </script>
+</body>
+</html>
